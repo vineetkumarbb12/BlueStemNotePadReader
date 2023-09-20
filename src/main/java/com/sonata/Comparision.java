@@ -4,6 +4,8 @@ import java.io.BufferedReader;
 
 import java.io.FileReader;
 
+import java.io.FileWriter;
+
 import java.io.IOException;
 
 import java.sql.Connection;
@@ -17,9 +19,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class Comparision {
+	
+	static private String HTMLTemplate = "<!doctype html><html><head><title>Query Results</title><style> table, th, td { border: 1px solid black; border-collapse: collapse; }</style></head><body><div align='center'><table><tr><th>ID</th><th>Name</th><th>Is Present In table</th><th>Table Name</th></tr>@@ROW_DATA@@</table></div></body></html>";
+	
 	public static void main(String[] args) {
 		// Define variables for database connection
-
+		String rowData="";
 		Connection connection = null;
 		try {
 			// Class.forName("com.mysql.jdbc.Driver");
@@ -31,10 +36,15 @@ public class Comparision {
 			String notepadLine;
 			while ((notepadLine = notepadReader.readLine()) != null) {
 				// Retrieve data from the database for comparison
-				String sql = "SELECT id, sal, email_id, name FROM employees WHERE id = ?";
+				String sql = "SELECT id, sal, email_id, name FROM employees WHERE id = ? and upper(name)=?";
 				PreparedStatement preparedStatement = connection.prepareStatement(sql);
 				System.out.println("notepadLine : " + notepadLine);
-				preparedStatement.setString(1, notepadLine);
+				
+				String[] dataArr = notepadLine.split(",");
+				System.out.println("dataArr[0] : " + dataArr[0]);
+				
+				preparedStatement.setString(1, dataArr[0]);
+				preparedStatement.setString(2, dataArr[1].toUpperCase().trim());
 				ResultSet resultSet = preparedStatement.executeQuery();
 
 				if (resultSet.next()) {
@@ -46,6 +56,7 @@ public class Comparision {
 					// Perform your comparison logic here
 					System.out.println("Match found for: " + notepadLine);
 					System.out.println("Database Data: " + id + ", " + sal + ", " + email_id + ", " + name);
+					rowData = rowData + "<tr><td>"+resultSet.getString("id")+"</td><td>"+resultSet.getString("name")+"</td><td>true</td><td>employees</td></tr>";
 				} else {
 					// No match is found
 					System.out.println("No match found for: " + notepadLine);
@@ -54,6 +65,13 @@ public class Comparision {
 				preparedStatement.close();
 			}
 			notepadReader.close();
+			
+			HTMLTemplate=HTMLTemplate.replace("@@ROW_DATA@@", rowData);
+			
+			String resultFilePath= "D:/TextPadReader/Result/Result.html";
+			FileWriter myWriter = new FileWriter(resultFilePath);
+		    myWriter.write(HTMLTemplate);
+		    myWriter.close();
 		} catch (SQLException | IOException e) {
 			e.printStackTrace();
 		} finally {
