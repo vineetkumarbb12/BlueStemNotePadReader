@@ -10,17 +10,19 @@ import java.io.IOException;
 
 import java.sql.Connection;
 
-import java.sql.DriverManager;
-
 import java.sql.PreparedStatement;
 
 import java.sql.ResultSet;
 
 import java.sql.SQLException;
 
+import java.util.Date;
+
+import java.text.SimpleDateFormat;
+
 public class Comparision {
 	
-	static private String HTMLTemplate = "<!doctype html><html><head><title>Query Results</title><style> table, th, td { border: 1px solid black; border-collapse: collapse; }</style></head><body><div align='center'><table><tr><th>ID</th><th>Name</th><th>Is Present In table</th><th>Table Name</th></tr>@@ROW_DATA@@</table></div></body></html>";
+	static private String HTMLTemplate = "<!doctype html> <html> <head> <title>Query Results</title> <style> .styled-table { border-collapse: collapse; margin: 25px 0; font-size: 0.9em; font-family: sans-serif; min-width: 400px; box-shadow: 0 0 20px rgba(0, 0, 0, 0.15); } .styled-table thead tr { background-color: #009879; color: #ffffff; text-align: left; } .styled-table th, .styled-table td { padding: 12px 15px; } .styled-table tbody tr { border-bottom: 1px solid #dddddd; } .styled-table tbody tr:nth-of-type(even) { background-color: #f3f3f3; } .styled-table tbody tr:last-of-type { border-bottom: 2px solid #009879; } .styled-table tbody tr.active-row { font-weight: bold; color: #009879; } </style> </head> <body> <div> <u style='color: blue;'><label style='padding-left:100px;'>Test Result for the : @@DATE@@</label></u> <table class='styled-table'> <thead> <tr> <th>ID</th> <th>Name</th> <th>Is Present In table</th> <th>Table Name</th> </tr> </thead> <tbody> @@ROW_DATA@@ </tbody> </table> </div> </body> </html>";
 	
 	public static void main(String[] args) {
 		// Define variables for database connection
@@ -66,6 +68,9 @@ public class Comparision {
 			}
 			notepadReader.close();
 			
+			Date date = new Date();
+			SimpleDateFormat formatter = new SimpleDateFormat("MM-dd-yyyy");
+			HTMLTemplate=HTMLTemplate.replace("@@DATE@@", formatter.format(date));
 			HTMLTemplate=HTMLTemplate.replace("@@ROW_DATA@@", rowData);
 			
 			String resultFilePath= "D:/TextPadReader/Result/Result.html";
