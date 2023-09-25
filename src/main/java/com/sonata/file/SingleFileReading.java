@@ -1,4 +1,4 @@
-package com.sonata;
+package com.sonata.file;
 
 import java.io.BufferedReader;
 import java.io.FileReader;

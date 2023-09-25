@@ -1,4 +1,4 @@
-package com.sonata;
+package com.sonata.db;
 
 import java.sql.*;
 
@@ -23,7 +23,7 @@ public class DBManager {
         }
     }
     
-    Connection getConnection() {
+    public Connection getConnection() {
     	Connection con =null;
     	try {
             Class.forName("com.mysql.cj.jdbc.Driver");
