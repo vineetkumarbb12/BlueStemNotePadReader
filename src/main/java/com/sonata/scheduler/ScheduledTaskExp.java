@@ -94,7 +94,7 @@ public class ScheduledTaskExp {
 	        				}
 	        			}
 
-	        			for (int i = 0; i < fileData.size(); i++) {
+	        		/*	for (int i = 0; i < fileData.size(); i++) {
 	        				notepadLine = fileData.get(i);
 	        				
 	        				String sql = DBQuery.TABLE2_QRY;
@@ -131,7 +131,7 @@ public class ScheduledTaskExp {
 	        					preparedStatement.close();
 	        					preparedStatement=null;
 	        				}
-	        			}
+	        			}*/
 	        			
 	        			
 	        			
