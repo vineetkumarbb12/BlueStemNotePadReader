@@ -1,6 +1,7 @@
 package com.sonata.scheduler;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -22,7 +23,10 @@ import com.sonata.query.DBQuery;
 
 public class ScheduledTaskExp {
 
-	static private String HTMLTemplate = "<!doctype html> <html> <head> <title>Query Results</title> <style> .styled-table { border-collapse: collapse; margin: 25px 0; font-size: 0.9em; font-family: sans-serif; min-width: 400px; box-shadow: 0 0 20px rgba(0, 0, 0, 0.15); } .styled-table thead tr { background-color: #009879; color: #ffffff; text-align: left; } .styled-table th, .styled-table td { padding: 12px 15px; width: 250px;} .styled-table tbody tr { border-bottom: 1px solid #dddddd; } .styled-table tbody tr:nth-of-type(even) { background-color: #f3f3f3; } .styled-table tbody tr:last-of-type { border-bottom: 2px solid #009879; } .styled-table tbody tr.active-row { font-weight: bold; color: #009879; } </style> </head> <body> <div> <b style='color: brown;padding-left:45%;font-size: 22px;'><label>Test Result</label><label style='padding-left:35%;'>@@DATE@@</label></b></div> <div><table class='styled-table'> <thead> <tr> <th>ID</th> <th>Name</th> <th>Salary</th> <th>Is Present In table</th> <th>Table Name</th> </tr> </thead> <tbody> @@ROW_DATA@@ </tbody> </table> </div> </body> </html>";
+	private static String INPUT_FILE_PATH="D:/Bluestem/Input-File/NotepadPoc.txt";
+	private static String OUTPUT_FILE_PATH="D:/TextPadReader/Result";
+
+	static private String HTMLTemplate = "<!doctype html> <html> <head> <title>Query Results</title> <style> .styled-table { border-collapse: collapse; margin: 25px 0; font-size: 0.9em; font-family: sans-serif; min-width: 400px; box-shadow: 0 0 20px rgba(0, 0, 0, 0.15); } .styled-table thead tr { background-color: #009879; color: #ffffff; text-align: left; } .styled-table th, .styled-table td { padding: 12px 15px; width: 250px;} .styled-table tbody tr { border-bottom: 1px solid #dddddd; } .styled-table tbody tr:nth-of-type(even) { background-color: #f3f3f3; } .styled-table tbody tr:last-of-type { border-bottom: 2px solid #009879; } .styled-table tbody tr.active-row { font-weight: bold; color: #009879; } </style> </head> <body> <div> <b style='color: brown;padding-left:45%;font-size: 22px;'><label>Test Result</label><label style='padding-left:35%;'>@@DATE@@</label></b></div> <div><table class='styled-table'> <thead> <tr> <th>ID</th> <th>Name</th> <th>Salary</th> <th>Is Present In table</th> <th>Table Name</th> </tr> </thead> <tbody> @@SUCCESS_ROW_DATA@@ @@FAIL_ROW_DATA@@ </tbody> </table> </div> </body> </html>";
 
 	public static void main(String[] args) {
 		try {
@@ -42,17 +46,23 @@ public class ScheduledTaskExp {
 			scheduler.scheduleAtFixedRate(new Runnable() {
 				@Override
 				public void run() {
-					String rowData="";
+					String successRowData="";
+					String failRowData="";
 					String notepadLine=null;
 					Connection connection = null;
 					BufferedReader notepadReader = null;
 					try {
 						DBManager dbManager = new DBManager();
 						connection = dbManager.getConnection();
-						notepadReader = new BufferedReader(new FileReader("D:/TextPadReader/Notepad1.txt"));
+						notepadReader = new BufferedReader(new FileReader(INPUT_FILE_PATH));
 						List<String> fileData = new ArrayList<>();
+						boolean headerFlag = true;
 						while ((notepadLine = notepadReader.readLine()) != null) {
-							fileData.add(notepadLine);
+							if(headerFlag) {
+								headerFlag = false;
+							} else {
+								fileData.add(notepadLine);
+							}
 						}
 						notepadReader.close();
 						System.out.println("fileData : " + fileData.size());
@@ -84,11 +94,11 @@ public class ScheduledTaskExp {
 								// Perform your comparison logic here
 								System.out.println("Match found for: " + notepadLine);
 								System.out.println("Database Data: " + id + ", " + sal + ", " + email_id + ", " + name);
-								rowData = rowData + "<tr><td>"+resultSet.getString("id")+"</td><td>"+resultSet.getString("name")+"</td><td>"+sal+"</td><td style='color:green'>true</td><td>"+tableName+"</td></tr>";
+								successRowData = successRowData + "<tr><td>"+resultSet.getString("id")+"</td><td>"+resultSet.getString("name")+"</td><td>"+dataArr[2]+"</td><td style='color:green'>true</td><td>"+tableName+"</td></tr>";
 							} else {
 								// No match is found
 								System.out.println("No match found for: " + notepadLine);
-								rowData = rowData + "<tr><td>"+dataArr[0]+"</td><td>"+dataArr[1]+"</td><td></td><td style='color:red'>false</td><td>"+tableName+"</td></tr>";
+								failRowData = failRowData + "<tr><td>"+dataArr[0]+"</td><td>"+dataArr[1]+"</td><td>"+dataArr[2]+"</td><td style='color:red'>false</td><td>"+tableName+"</td></tr>";
 							}
 							if(resultSet!=null) {
 								resultSet.close();
@@ -99,61 +109,21 @@ public class ScheduledTaskExp {
 								preparedStatement=null;
 							}
 						}
-
-						for (int i = 0; i < fileData.size(); i++) {
-							notepadLine = fileData.get(i);
-
-							String sql = DBQuery.TABLE2_QRY;
-							PreparedStatement preparedStatement = connection.prepareStatement(sql);
-							System.out.println("notepadLine : " + notepadLine);
-
-							String[] dataArr = notepadLine.split(",");
-							System.out.println("dataArr[0] : " + dataArr[0]);
-
-							preparedStatement.setString(1, dataArr[0]);
-							preparedStatement.setString(2, dataArr[1].toUpperCase().trim());
-							ResultSet resultSet = preparedStatement.executeQuery();
-
-							ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
-							String tableName = resultSetMetaData.getTableName(4);
-							System.out.println("Name of the table : "+ tableName);
-
-							if (resultSet.next()) {
-								// Match is found
-								String cardNumber = resultSet.getString("card_number");
-								String cardHolderName = resultSet.getString("card_holder_name");
-								String availableBal = resultSet.getString("available_bal");
-								String cardLimit = resultSet.getString("card_limit");
-								String usedBal = resultSet.getString("used_bal");
-								String sal = resultSet.getString("sal");
-
-								System.out.println("Match found for: " + notepadLine);
-								System.out.println("Database Data: " + cardNumber + ", " + cardHolderName + ", " + availableBal + ", " + cardLimit  + ", " + usedBal);
-								rowData = rowData + "<tr><td>"+cardNumber+"</td><td>"+cardHolderName+"</td><td>"+sal+"</td><td style='color:green'>true</td><td>"+tableName+"</td></tr>";
-							} else {
-								// No match is found
-								System.out.println("No match found for: " + notepadLine);
-								rowData = rowData + "<tr><td>"+dataArr[0]+"</td><td>"+dataArr[1]+"</td><td></td><td style='color:red'>true</td><td>"+tableName+"</td></tr>";
-							}
-							if(resultSet!=null) {
-								resultSet.close();
-								resultSet=null;
-							}
-							if(preparedStatement!=null) {
-								preparedStatement.close();
-								preparedStatement=null;
-							}
-						}
-
-
 
 						Date date = new Date();
 						SimpleDateFormat formatter = new SimpleDateFormat("dd-MMM-yyyy");
 						HTMLTemplate=HTMLTemplate.replace("@@DATE@@", formatter.format(date));
-						HTMLTemplate=HTMLTemplate.replace("@@ROW_DATA@@", rowData);
+						HTMLTemplate=HTMLTemplate.replace("@@SUCCESS_ROW_DATA@@", successRowData);
+						HTMLTemplate=HTMLTemplate.replace("@@FAIL_ROW_DATA@@", failRowData);
 
-						String resultFilePath= "D:/TextPadReader/Result/Result.html";
-						FileWriter myWriter = new FileWriter(resultFilePath);
+						SimpleDateFormat fileNameFormat = new SimpleDateFormat("dd-MMM-yyyy_HHmmss");
+						String dayAndTime = fileNameFormat.format(new Date());
+						String resultFilePath= OUTPUT_FILE_PATH +"/Result_"+dayAndTime+".html";
+						File file = new File(resultFilePath);
+						if(!file.exists()) {
+							file.createNewFile();
+						}
+						FileWriter myWriter = new FileWriter(file);
 						myWriter.write(HTMLTemplate);
 						myWriter.close();
 					} catch (SQLException | IOException e) {
@@ -169,7 +139,7 @@ public class ScheduledTaskExp {
 					}
 					System.out.println("******************* Done ***********************");
 				}
-			}, 0, 1, TimeUnit.MINUTES);
+			}, 0, 10, TimeUnit.MINUTES);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
