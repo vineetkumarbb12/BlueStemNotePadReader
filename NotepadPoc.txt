@@ -1,0 +1,7 @@
+id,name,sal,email
+1, ram, 20000, ram@gmail.com
+2, Bhim, 25000, bhim@gmail.com
+3, Krish, 22000, krish@gmail.com
+, Anji, 23000, anji@gmail.com
+5, Ravan, 18000, ravan@gmail.com
+6, Dharma, 25000, dharma@gmail.com

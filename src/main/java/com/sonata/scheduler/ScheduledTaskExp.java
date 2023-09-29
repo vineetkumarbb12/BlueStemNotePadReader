@@ -139,7 +139,7 @@ public class ScheduledTaskExp {
 					}
 					System.out.println("******************* Done ***********************");
 				}
-			}, 0, 10, TimeUnit.MINUTES);
+			}, 0, 1, TimeUnit.MINUTES);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
