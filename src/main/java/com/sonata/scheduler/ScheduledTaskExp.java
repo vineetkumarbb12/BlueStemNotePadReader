@@ -26,7 +26,7 @@ public class ScheduledTaskExp {
 	private static String INPUT_FILE_PATH="D:/Bluestem/Input-File/NotepadPoc.txt";
 	private static String OUTPUT_FILE_PATH="D:/TextPadReader/Result";
 
-	static private String HTMLTemplate = "<!doctype html> <html> <head> <title>Query Results</title> <style> .styled-table { border-collapse: collapse; margin: 25px 0; font-size: 0.9em; font-family: sans-serif; min-width: 400px; box-shadow: 0 0 20px rgba(0, 0, 0, 0.15); } .styled-table thead tr { background-color: #009879; color: #ffffff; text-align: left; } .styled-table th, .styled-table td { padding: 12px 15px; width: 250px;} .styled-table tbody tr { border-bottom: 1px solid #dddddd; } .styled-table tbody tr:nth-of-type(even) { background-color: #f3f3f3; } .styled-table tbody tr:last-of-type { border-bottom: 2px solid #009879; } .styled-table tbody tr.active-row { font-weight: bold; color: #009879; } </style> </head> <body> <div> <b style='color: brown;padding-left:45%;font-size: 22px;'><label>Test Result</label><label style='padding-left:35%;'>@@DATE@@</label></b></div> <div><table class='styled-table'> <thead> <tr> <th>ID</th> <th>Name</th> <th>Salary</th> <th>Is Present In table</th> <th>Table Name</th> </tr> </thead> <tbody> @@SUCCESS_ROW_DATA@@ @@FAIL_ROW_DATA@@ </tbody> </table> </div> </body> </html>";
+	static private String HTMLTemplate = "<!doctype html> <html> <head> <title>Query Results</title> <style> .styled-table { border-collapse: collapse; margin: 25px 0; font-size: 0.9em; font-family: sans-serif; min-width: 400px; box-shadow: 0 0 20px rgba(0, 0, 0, 0.15); } .styled-table thead tr { background-color: #009879; color: #ffffff; text-align: left; } .styled-table th, .styled-table td { padding: 12px 15px; width: 250px;} .styled-table tbody tr { border-bottom: 1px solid #dddddd; } .styled-table tbody tr:nth-of-type(even) { background-color: #f3f3f3; } .styled-table tbody tr:last-of-type { border-bottom: 2px solid #009879; } .styled-table tbody tr.active-row { font-weight: bold; color: #009879; } </style> </head> <body> <div> <b><label style='color: brown;padding-left:45%;font-size: 22px;'>Test Result</label><label style='color: blue;padding-left:25%;font-size: 16px;'>Test Date & Time: @@DATE@@</label></b></div> <div><table class='styled-table'> <thead> <tr> <th>ID</th> <th>Name</th> <th>Salary</th> <th>Email</th> <th>Is Present In table</th> <th>Table Name</th> </tr> </thead> <tbody> @@SUCCESS_ROW_DATA@@ @@FAIL_ROW_DATA@@ </tbody> </table> </div> </body> </html>";
 
 	public static void main(String[] args) {
 		try {
@@ -79,6 +79,8 @@ public class ScheduledTaskExp {
 
 							preparedStatement.setString(1, dataArr[0]);
 							preparedStatement.setString(2, dataArr[1].toUpperCase().trim());
+							preparedStatement.setString(3, dataArr[2]);
+							preparedStatement.setString(4, dataArr[3].toUpperCase().trim());
 							ResultSet resultSet = preparedStatement.executeQuery();
 
 							ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
@@ -89,16 +91,16 @@ public class ScheduledTaskExp {
 								// A match is found
 								String id = resultSet.getString("id");
 								String sal = resultSet.getString("sal");
-								String email_id = resultSet.getString("email_id");
+								String emailId = resultSet.getString("email_id");
 								String name = resultSet.getString("name");
 								// Perform your comparison logic here
 								System.out.println("Match found for: " + notepadLine);
-								System.out.println("Database Data: " + id + ", " + sal + ", " + email_id + ", " + name);
-								successRowData = successRowData + "<tr><td>"+resultSet.getString("id")+"</td><td>"+resultSet.getString("name")+"</td><td>"+dataArr[2]+"</td><td style='color:green'>true</td><td>"+tableName+"</td></tr>";
+								System.out.println("Database Data: " + id + ", " + sal + ", " + emailId + ", " + name);
+								successRowData = successRowData + "<tr><td>"+id+"</td><td>"+name+"</td><td>"+sal+"</td><td>"+emailId+"</td><td style='color:green'>true</td><td>"+tableName+"</td></tr>";
 							} else {
 								// No match is found
 								System.out.println("No match found for: " + notepadLine);
-								failRowData = failRowData + "<tr><td>"+dataArr[0]+"</td><td>"+dataArr[1]+"</td><td>"+dataArr[2]+"</td><td style='color:red'>false</td><td>"+tableName+"</td></tr>";
+								failRowData = failRowData + "<tr><td>"+dataArr[0]+"</td><td>"+dataArr[1]+"</td><td>"+dataArr[2]+"</td><td>"+dataArr[3]+"</td><td style='color:red'>false</td><td>Not present in table</td></tr>";
 							}
 							if(resultSet!=null) {
 								resultSet.close();
@@ -111,7 +113,7 @@ public class ScheduledTaskExp {
 						}
 
 						Date date = new Date();
-						SimpleDateFormat formatter = new SimpleDateFormat("dd-MMM-yyyy");
+						SimpleDateFormat formatter = new SimpleDateFormat("dd-MMM-yyyy HH:MM:SS");
 						HTMLTemplate=HTMLTemplate.replace("@@DATE@@", formatter.format(date));
 						HTMLTemplate=HTMLTemplate.replace("@@SUCCESS_ROW_DATA@@", successRowData);
 						HTMLTemplate=HTMLTemplate.replace("@@FAIL_ROW_DATA@@", failRowData);
