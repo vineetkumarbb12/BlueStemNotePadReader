@@ -4,33 +4,34 @@ import java.sql.*;
 
 public class DBManager {
     public static void main(String[] args) {
-        Connection con = null;
+    	Connection con = null;
         try {
-            DBManager dbManager = new DBManager();
+        	DBManager dbManager = new DBManager();
             con = dbManager.getConnection();
             System.out.println("con is : " + con);
         } catch(Exception e) {
             e.printStackTrace();
         } finally {
-            try {
-                if(con != null) {
-                    con.close();
-                    con=null;
-                }
-            } catch(Exception e) {
-                e.printStackTrace();
-            }
+        	 try {
+                 if(con != null) {
+                	 con.close();
+                	 con=null;
+                 }
+             } catch(Exception e) {
+                 e.printStackTrace();
+             } 
         }
     }
-
+    
     public Connection getConnection() {
-        Connection con =null;
-        try {
+    	Connection con =null;
+    	try {
             Class.forName("com.mysql.cj.jdbc.Driver");
-            con=DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/fullstacks","root","");
+            //con=DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/fullstacks","root","");
+            con=DriverManager.getConnection("jdbc:mysql://10.255.1.134:3306/sample","root","");
         } catch(Exception e) {
             e.printStackTrace();
         }
-        return con;
+    	return con;
     }
 }
