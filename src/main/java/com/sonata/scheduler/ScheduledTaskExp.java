@@ -5,6 +5,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import com.sonata.process.FileProcess;
+import com.sonata.process.FileProcess2;
 
 public class ScheduledTaskExp {
 
@@ -26,7 +27,7 @@ public class ScheduledTaskExp {
 			scheduler.scheduleAtFixedRate(new Runnable() {
 				@Override
 				public void run() {
-					boolean flag = FileProcess.fileProcessing();
+					boolean flag = FileProcess2.fileProcessing();
 					System.out.println("Final response is : " + flag);
 				}
 			}, 0, 1, TimeUnit.MINUTES);

@@ -27,8 +27,7 @@ public class DBManager {
     	Connection con =null;
     	try {
             Class.forName("com.mysql.cj.jdbc.Driver");
-            //con=DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/fullstacks","root","");
-            con=DriverManager.getConnection("jdbc:mysql://10.255.1.134:3306/sample","root","");
+            con=DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/fullstacks","root","");
         } catch(Exception e) {
             e.printStackTrace();
         }
